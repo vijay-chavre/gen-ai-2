@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  PORT: z.coerce.number().int().positive().default(3000),
+  PORT: z.coerce.number().int().positive().default(8080),
   GROQ_API_KEY: z.string().min(1, "GROQ_API_KEY is required"),
   CORS_ORIGIN: z.string().optional(),
 });
