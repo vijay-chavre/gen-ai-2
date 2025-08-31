@@ -13,7 +13,7 @@ export default function ChatContent({ messages }: { messages: Message[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll on new message
+  //Auto-scroll on new message
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -21,7 +21,10 @@ export default function ChatContent({ messages }: { messages: Message[] }) {
   }, [messages]);
 
   return (
-    <div ref={containerRef} className="h-full overflow-y-auto">
+    <div
+      ref={containerRef}
+      className="h-[calc(100vh-210px)]  overflow-y-auto px-4"
+    >
       <div className="max-w-4xl mx-auto">
         {messages.map((msg, idx) => (
           <div
