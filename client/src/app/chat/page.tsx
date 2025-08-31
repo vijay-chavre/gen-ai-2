@@ -1,7 +1,9 @@
-export default function ChatPage() { 
-    return (
-        <div>
-            <h1>Chat</h1>
-        </div>
-    )
+import Chat from "./_components/client";
+
+export default function ChatPage() {
+  return (
+    <div className="h-full flex flex-col">
+      <Chat />
+    </div>
+  );
 }
