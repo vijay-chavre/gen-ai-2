@@ -1,5 +1,5 @@
 node_modules/
-server/dist/
+dist/
 coverage/
 *.log
 npm-debug.log*
@@ -17,3 +17,4 @@ server/.env
 *.tsbuildinfo
 .tmp/
 .cache/
+.dist

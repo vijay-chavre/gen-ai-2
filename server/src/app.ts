@@ -1,4 +1,4 @@
-import express, { type NextFunction, type Request, type Response } from "express";
+import express, { type NextFunction, type Request, type Response, type Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -7,7 +7,7 @@ import rateLimit from "express-rate-limit";
 import { createChatRouter } from "./features/chat/routes.js";
 import { env, isProd } from "./config/env.js";
 
-export function createApp() {
+export function createApp(): Application {
   const app = express();
   app.disable("x-powered-by");
   if (isProd) {
