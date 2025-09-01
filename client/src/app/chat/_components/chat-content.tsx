@@ -2,14 +2,33 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Loader2, RefreshCw } from "lucide-react";
+import { Bot, User, Loader2, RefreshCw, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ContentRenderer } from "@/components/ui/content-renderer";
+import { TestRenderer } from "@/components/ui/test-renderer";
+import { ResponseType } from "@/services/chatService";
 
 export interface Message {
   role: "user" | "assistant";
   content: string;
   isError?: boolean;
   timestamp?: Date;
+  responseType?: ResponseType;
+  metadata?: {
+    language?: string;
+    isCode?: boolean;
+    isJson?: boolean;
+    isMarkdown?: boolean;
+    confidence?: number;
+    jsonKeys?: string[];
+    jsonDepth?: number;
+  };
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  model?: string;
 }
 
 interface ChatContentProps {
@@ -39,6 +58,46 @@ export default function ChatContent({
     }
   };
 
+  const getResponseTypeLabel = (responseType?: ResponseType) => {
+    if (!responseType || responseType === "text") return null;
+
+    const labels: Record<string, string> = {
+      json: "JSON",
+      code: "CODE",
+      markdown: "MD",
+      mixed: "MIXED",
+      table: "TABLE",
+      "html-table": "HTML",
+      raw: "RAW",
+    };
+
+    return (
+      <span className="text-xs font-mono px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+        {labels[responseType] || responseType.toUpperCase()}
+      </span>
+    );
+  };
+
+  const getResponseInfo = (message: Message) => {
+    if (message.role !== "assistant" || message.isError) return null;
+
+    return (
+      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2">
+        {message.responseType && message.responseType !== "text" && (
+          <span className="flex items-center gap-1">
+            <Info className="w-3 h-3" />
+            {message.responseType.toUpperCase()}
+          </span>
+        )}
+        {message.metadata?.language && (
+          <span className="font-mono">{message.metadata.language}</span>
+        )}
+        {message.usage && <span>{message.usage.total_tokens} tokens</span>}
+        {message.model && <span className="font-mono">{message.model}</span>}
+      </div>
+    );
+  };
+
   return (
     <div
       ref={containerRef}
@@ -55,7 +114,7 @@ export default function ChatContent({
           >
             <div
               className={cn(
-                "flex items-start gap-3 max-w-[85%]",
+                "flex items-start gap-3 max-w-[70%]",
                 msg.role === "user" ? "flex-row-reverse" : "flex-row"
               )}
             >
@@ -79,7 +138,8 @@ export default function ChatContent({
               <div
                 className={cn(
                   "px-4 py-3 rounded-2xl text-sm leading-relaxed",
-                  "shadow-sm border",
+                  "shadow-sm border break-words overflow-hidden",
+                  "min-w-0 flex-1", // Ensure proper flex behavior
                   msg.role === "assistant"
                     ? msg.isError
                       ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
@@ -87,9 +147,41 @@ export default function ChatContent({
                     : "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                 )}
               >
-                <div className="whitespace-pre-wrap break-words">
-                  {msg.content}
-                </div>
+                {/* Response type label */}
+                {msg.role === "assistant" && !msg.isError && (
+                  <div className="flex items-center justify-between mb-2">
+                    {getResponseTypeLabel(msg.responseType)}
+                  </div>
+                )}
+
+                {/* Content */}
+                {msg.isError ? (
+                  <div className="whitespace-pre-wrap break-words">
+                    {msg.content}
+                  </div>
+                ) : msg.role === "assistant" ? (
+                  <>
+                    {/* Debug info */}
+                    {process.env.NODE_ENV === "development" && (
+                      <div className="text-xs text-gray-500 mb-2">
+                        Debug: responseType={msg.responseType}, content length=
+                        {msg.content.length}
+                      </div>
+                    )}
+                    <ContentRenderer
+                      content={msg.content}
+                      responseType={msg.responseType || "text"}
+                      metadata={msg.metadata}
+                    />
+                  </>
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">
+                    {msg.content}
+                  </div>
+                )}
+
+                {/* Response info */}
+                {getResponseInfo(msg)}
 
                 {/* Retry button for error messages */}
                 {msg.isError && onRetry && (

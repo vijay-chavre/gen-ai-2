@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChatBar from "./chat-bar";
 import ChatContent, { Message } from "./chat-content";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -9,17 +9,31 @@ import {
   ChatService,
   ChatMessage as ServiceMessage,
   ChatError,
+  ResponseType,
 } from "@/services/chatService";
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[] | []>([
-    { role: "assistant", content: "Hi 👋 How can I help you today?" },
+    {
+      role: "assistant",
+      content: "Hi 👋 How can I help you today?",
+      responseType: "text",
+    },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
 
-  const sendMessage = async (userMessage: string, messageIndex?: number) => {
+  // Debug: Log messages whenever they change
+  useEffect(() => {
+    console.log("Messages state updated:", messages);
+  }, [messages]);
+
+  const sendMessage = async (
+    userMessage: string,
+    messageIndex?: number,
+    options: { responseFormat?: ResponseType; systemPrompt?: string } = {}
+  ) => {
     if (isLoading) return;
 
     // Clear any previous errors
@@ -65,13 +79,26 @@ export default function Chat() {
       // Add the new user message
       serviceMessages.push({ role: "user", content: userMessage });
 
-      // Get AI response from server
-      const response = await ChatService.sendMessage(serviceMessages);
+      // Get AI response from server with options
+      const response = await ChatService.sendMessage(serviceMessages, options);
 
-      // Add AI response
+      console.log("AI Response:", response); // Debug log
+
+      // Add AI response with metadata
+      const newMessage: Message = {
+        role: "assistant",
+        content: response.reply,
+        responseType: response.responseType,
+        metadata: response.metadata,
+        usage: response.usage,
+        model: response.model,
+      };
+
+      console.log("New message being added:", newMessage); // Debug log
+
       setMessages((msges: Message[]) => [
         ...msges.filter((msg) => !msg.isError), // Remove any error messages
-        { role: "assistant", content: response.reply },
+        newMessage,
       ]);
 
       // Show success toast for retries
@@ -79,6 +106,14 @@ export default function Chat() {
         toast.success(
           "Message sent successfully!",
           "Your request has been processed."
+        );
+      }
+
+      // Show response type toast for non-text responses
+      if (response.responseType && response.responseType !== "text") {
+        toast.info(
+          `${response.responseType.toUpperCase()} Response`,
+          `AI responded with ${response.responseType} format`
         );
       }
     } catch (error) {
@@ -137,8 +172,11 @@ export default function Chat() {
     }
   };
 
-  const handleSend = (msg: string) => {
-    sendMessage(msg);
+  const handleSend = (
+    msg: string,
+    options?: { responseFormat?: ResponseType; systemPrompt?: string }
+  ) => {
+    sendMessage(msg, undefined, options);
   };
 
   const handleRetry = (messageIndex: number) => {
@@ -157,6 +195,20 @@ export default function Chat() {
     <>
       {/* Toast Container */}
       <ToastContainer toasts={toast.toasts} onDismiss={toast.dismissToast} />
+
+      {/* Debug link - remove in production */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="absolute top-4 right-4 z-10">
+          <a
+            href="/test"
+            className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Test Page
+          </a>
+        </div>
+      )}
 
       <div className="h-full flex flex-col">
         {/* Error Banner */}
