@@ -57,14 +57,13 @@ export class ChatService {
 
   // ---- Helpers -------------------------------------------------------------
 
-  private static getObjectDepth(obj: any, depth = 1): number {
+  private static getObjectDepth(obj: unknown, depth = 1): number {
     if (typeof obj !== "object" || obj === null) return depth;
     let maxDepth = depth;
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        maxDepth = Math.max(maxDepth, this.getObjectDepth(obj[key], depth + 1));
-      }
-    }
+    Object.keys(obj as Record<string, unknown>).forEach((key) => {
+      const value = (obj as Record<string, unknown>)[key];
+      maxDepth = Math.max(maxDepth, this.getObjectDepth(value, depth + 1));
+    });
     return maxDepth;
   }
 
@@ -300,7 +299,7 @@ export class ChatService {
 
       // Axios: prefer response.data
       if (response && typeof response === "object" && "data" in response) {
-        return this.parseResponse((response as any).data);
+        return this.parseResponse((response as { data: unknown }).data);
       }
       return this.parseResponse(response);
     } catch (error: unknown) {
@@ -308,7 +307,11 @@ export class ChatService {
       if (error instanceof ChatError) throw error;
 
       if (typeof error === "object" && error !== null) {
-        const err = error as any;
+        const err = error as {
+          response?: { status?: number };
+          message?: string;
+          code?: string;
+        };
 
         // Axios error with response.status
         const status: number | undefined = err?.response?.status;

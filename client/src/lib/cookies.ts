@@ -10,6 +10,12 @@ interface CookieOptions {
   sameSite?: "Strict" | "Lax" | "None";
 }
 
+type UserCookie = {
+  email?: string;
+  sub?: string;
+  [key: string]: unknown;
+};
+
 /**
  * Set a cookie
  * @param name - The name of the cookie
@@ -110,7 +116,7 @@ function cookieExists(name: string): boolean {
     .some((cookie) => cookie.startsWith(`${encodeURIComponent(name)}=`));
 }
 
-function setUserCookie(user: any) {
+function setUserCookie(user: UserCookie) {
   setCookie("user", user, {
     expires: 7 * 24 * 60 * 60, // 7 days in seconds
     path: "/",
@@ -119,8 +125,8 @@ function setUserCookie(user: any) {
   });
 }
 
-function getUserCookie() {
-  return getCookie<any>("user");
+function getUserCookie(): UserCookie | null {
+  return getCookie<UserCookie>("user");
 }
 
 function setAuthTokenCookie(token: string) {

@@ -1,5 +1,5 @@
 export interface CustomErrorType extends Error {
-  errors(errors: any): unknown;
+  errors(errors: unknown): unknown;
   statusCode?: number;
   code: number;
 }

@@ -7,7 +7,7 @@ import {
 } from "@/lib/cookies";
 import { errorHandler } from "@/utils/error/errorHandler";
 import { ErrorResponse } from "@/utils/error/types";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import https from "https";
 import {
   getServerCookie,
@@ -43,7 +43,8 @@ export const defaultAxios = axios.create({
  * @param noHeaders Whether to omit the default headers
  * @param rest The rest of the AxiosRequestConfig
  * @returns The response data
- /**
+ */
+/**
  * Creates an axios request configuration
  */
 const createRequestConfig = (
@@ -154,7 +155,7 @@ export async function apiClient({
     );
     const res = await defaultAxios(config);
     return res;
-  } catch (err: AxiosError | any) {
+  } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       if (err.response?.status === 401) {
         const config = createRequestConfig(
@@ -181,6 +182,6 @@ export async function apiClient({
       }
       throw err;
     }
-    throw err;
+    throw err as Error;
   }
 }

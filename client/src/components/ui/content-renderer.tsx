@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 
 type ResponseType =
@@ -49,7 +49,9 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
           return match ? (
             <div className="relative group">
               <SyntaxHighlighter
-                style={oneDark}
+                style={
+                  oneDark as unknown as Record<string, React.CSSProperties>
+                }
                 language={match[1]}
                 PreTag="div"
                 className="rounded-lg text-sm"
@@ -170,7 +172,7 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
   const renderCode = (code: string, language = "javascript") => (
     <div className="relative group">
       <SyntaxHighlighter
-        style={oneDark}
+        style={oneDark as unknown as Record<string, React.CSSProperties>}
         language={language}
         PreTag="div"
         className="rounded-lg text-sm"
