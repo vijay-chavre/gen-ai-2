@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "type": "module",
+  
   "scripts": {
     "dev": "tsx --env-file=.env src/index.ts",
     "build": "tsc -p tsconfig.json",
@@ -21,7 +22,8 @@
     "groq-sdk": "^0.30.0",
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
-    "zod": "^4.1.5"
+    "zod": "^4.1.5",
+    "@types/node": "^24.3.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
