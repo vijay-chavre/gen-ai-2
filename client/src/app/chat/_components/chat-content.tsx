@@ -114,7 +114,7 @@ export default function ChatContent({
           >
             <div
               className={cn(
-                "flex items-start gap-3 max-w-[70%]",
+                "flex items-start gap-3 max-w-[75%]",
                 msg.role === "user" ? "flex-row-reverse" : "flex-row"
               )}
             >
@@ -143,7 +143,7 @@ export default function ChatContent({
                   msg.role === "assistant"
                     ? msg.isError
                       ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
-                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-foreground"
+                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-foreground overflow-x-hidden"
                     : "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                 )}
               >

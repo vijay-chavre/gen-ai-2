@@ -3,6 +3,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkRehype from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Copy, Check } from "lucide-react";
@@ -41,6 +42,7 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
   const renderMarkdown = (md: string) => (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[remarkRehype]}
       components={{
         code({ className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || "");
@@ -63,10 +65,86 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
               </button>
             </div>
           ) : (
-            <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
+            <code className="bg-gray-100 dark:bg-gray-800   px-1 py-0.5 rounded">
               {children}
             </code>
           );
+        },
+        table({ children }) {
+          return (
+            <table className="min-w-full  border border-gray-300 dark:border-gray-700 text-sm">
+              {children}
+            </table>
+          );
+        },
+        td({ children }) {
+          return (
+            <td className="px-2 py-1 border border-gray-300 dark:border-gray-700">
+              {children}
+            </td>
+          );
+        },
+        th({ children }) {
+          return (
+            <th className="px-2 py-1 border border-gray-300 dark:border-gray-700">
+              {children}
+            </th>
+          );
+        },
+        tr({ children }) {
+          return (
+            <tr className="hover:bg-gray-50 dark:hover:bg-gray-900">
+              {children}
+            </tr>
+          );
+        },
+        tbody({ children }) {
+          return <tbody>{children}</tbody>;
+        },
+        thead({ children }) {
+          return (
+            <thead className="bg-gray-100 dark:bg-gray-800">{children}</thead>
+          );
+        },
+        pre({ children }) {
+          return (
+            <pre className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg overflow-x-auto text-xs">
+              {children}
+            </pre>
+          );
+        },
+
+        blockquote({ children }) {
+          return (
+            <blockquote className="border-l-4 border-gray-300 dark:border-gray-700 pl-4 py-2">
+              {children}
+            </blockquote>
+          );
+        },
+        hr({ children }) {
+          return <hr className="border-gray-300 dark:border-gray-700 my-4" />;
+        },
+        img({ src, alt }) {
+          return <img src={src} alt={alt} className="mx-auto" />;
+        },
+        a({ href, children }) {
+          return (
+            <a href={href} className="text-blue-500">
+              {children}
+            </a>
+          );
+        },
+        strong({ children }) {
+          return <strong>{children}</strong>;
+        },
+        em({ children }) {
+          return <em>{children}</em>;
+        },
+        del({ children }) {
+          return <del>{children}</del>;
+        },
+        sup({ children }) {
+          return <sup>{children}</sup>;
         },
       }}
     >
@@ -170,23 +248,25 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({
     );
   };
 
+  return renderMarkdown(content);
+
   // ✅ Dispatcher
-  switch (responseType) {
-    case "json":
-      return renderJson(content);
-    case "code":
-      return renderCode(content, metadata?.language);
-    case "markdown":
-      return renderMarkdown(content);
-    case "table":
-      return renderTable(content);
-    case "html-table":
-      return renderRaw(content); // Render HTML tables as raw content
-    case "raw":
-      return renderRaw(content);
-    case "mixed":
-      return renderMixed(content);
-    default:
-      return renderMarkdown(content); // fallback to markdown for "text"
-  }
+  // switch (responseType) {
+  //   case "json":
+  //     return renderJson(content);
+  //   case "code":
+  //     return renderCode(content, metadata?.language);
+  //   case "markdown":
+  //     return renderMarkdown(content);
+  //   case "table":
+  //     return renderTable(content);
+  //   case "html-table":
+  //     return renderRaw(content); // Render HTML tables as raw content
+  //   case "raw":
+  //     return renderRaw(content);
+  //   case "mixed":
+  //     return renderMixed(content);
+  //   default:
+  //     return renderMarkdown(content); // fallback to markdown for "text"
+  // }
 };

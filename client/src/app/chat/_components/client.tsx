@@ -198,7 +198,7 @@ export default function Chat() {
 
       {/* Debug link - remove in production */}
       {process.env.NODE_ENV === "development" && (
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-20 right-4 z-10">
           <a
             href="/test"
             className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
